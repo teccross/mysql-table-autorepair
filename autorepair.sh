@@ -1,7 +1,7 @@
-ip=IP
-banco=NOME_BANCO
-usuario=USUARIO
-senha=SENHA
+ip=10.220.5.76
+banco=tda_sistema
+usuario=teste
+senha=1234
 
 #!/bin/bash
 # functions
@@ -66,26 +66,31 @@ msg "###### MYSQl AUTO REPAIR TABLES #########"1
 
 
 
-msg "2 - Importing tables:________________________________________"1
+msg "1 - Importing tables:___________________________________________"1
 listTables "show tables;" tableList.txt
+> tableListWithErrors.txt
 
+msg "2 - Checking tables_____________________________________________" 1
 while read p; do
 	checkTable "check table $p;"
 	tableCheck=$(cat stdOut.txt | grep $banco)
   	
   	if [[ $tableCheck = *"Err"* ]] || [[ $tableCheck = *"crash"* ]] || [[ $tableCheck = *"repair"* ]] || [[ $tableCheck = *"warning"* ]]; then
-	  msg "TABLE $p WITH ERROR_______________________________________" 4
-	  echo $tableCheck
-
-	  msg "REPARING TABLE $p:________________________________________" 1
-	  repairTable "repair table $p;"
-	  cat repairTable.txt
+	  echo $p >> tableListWithErrors.txt
 	fi
-
-  
 done <tableList.txt
 
 
+#if [ -s tableListWithErrors.txt ]
+#then
+	tables=$(cat tableListWithErrors.txt)
+	echo -e "Errors found on $tables"
+	msg "4 - Backingup database________________________________________________" 1
+    mysqldump -u $usuario -p$senha --databases $banco -h $ip > /tmp/dump-$banco.sql  
+        
+#else
+#	echo "NO ERRORS FOUND!"
+#fi
 
 
 
