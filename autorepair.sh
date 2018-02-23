@@ -1,7 +1,7 @@
 ip=10.220.5.76
-banco=tda_sistema
-usuario=teste
-senha=1234
+database=tda_sistema
+username=teste
+password=1234
 
 #!/bin/bash
 # functions
@@ -43,26 +43,26 @@ msg() {
 
 listTables()
 {
-	mysql -u $usuario -p$senha -D $banco -h $ip -e "$1" > tableList.txt 2>&1
+	mysql -u $username -p$password -D $database -h $ip -e "$1" > tableList.txt 2>&1
 }
 
 
 repairTable()
 {
-	mysql -u $usuario -p$senha -D $banco -h $ip -e "$1" > repairTable.txt 2>&1
+	mysql -u $username -p$password -D $database -h $ip -e "$1" > repairTable.txt 2>&1
 }
 
 checkTable()
 {
-	mysql -u $usuario -p$senha -D $banco -h $ip -e "$1" > stdOut.txt 2>&1
+	mysql -u $username -p$password -D $database -h $ip -e "$1" > stdOut.txt 2>&1
 }
 
 msg "###### MYSQl AUTO REPAIR TABLES #########"1
 #sg "1 - Database credentials:____________________________________"1
 #read -p "IP______: " ip
-#read -p "Banco___: " banco
-#read -p "Usuario_: " usuario
-#read -p "Senha___: " senha
+#read -p "database___: " database
+#read -p "username_: " username
+#read -p "password___: " password
 
 
 
@@ -73,7 +73,7 @@ listTables "show tables;" tableList.txt
 msg "2 - Checking tables_____________________________________________" 1
 while read p; do
 	checkTable "check table $p;"
-	tableCheck=$(cat stdOut.txt | grep $banco)
+	tableCheck=$(cat stdOut.txt | grep $database)
   	
   	if [[ $tableCheck = *"Err"* ]] || [[ $tableCheck = *"crash"* ]] || [[ $tableCheck = *"repair"* ]] || [[ $tableCheck = *"warning"* ]]; then
 	  echo $p >> tableListWithErrors.txt
@@ -86,7 +86,7 @@ done <tableList.txt
 	tables=$(cat tableListWithErrors.txt)
 	echo -e "Errors found on $tables"
 	msg "4 - Backingup database________________________________________________" 1
-    mysqldump -u $usuario -p$senha --databases $banco -h $ip > /tmp/dump-$banco.sql  
+    mysqldump -u $username -p$password --databases $database -h $ip > /tmp/dump-$database.sql  
         
 #else
 #	echo "NO ERRORS FOUND!"
